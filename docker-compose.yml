@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  # Contenedor 1: Base de datos orientada a objetos/grafos (Neo4j)
+  kuwaiba-db:
+    image: neo4j:4.4-community
+    container_name: kuwaiba-db
+    environment:
+      - NEO4J_AUTH=neo4j/kuwaiba # Credenciales por defecto de la BD
+    volumes:
+      - kuwaiba_db_data:/data
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+
+  # Contenedor 2: Servidor de Aplicación y Visor Web GIS
+  kuwaiba-app:
+    image: neotropic/kuwaiba:latest
+    container_name: kuwaiba-app
+    ports:
+      - "8080:8080" # Puerto web de consumo corporativo
+    environment:
+      - DB_URL=bolt://kuwaiba-db:7687
+      - DB_USER=neo4j
+      - DB_PASS=kuwaiba
+    depends_on:
+      - kuwaiba-db
+
+volumes:
+  kuwaiba_db_data:
